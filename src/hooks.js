@@ -5,7 +5,6 @@ export function useMediaQuery(query, handler) {
     useEffect(() => {
         const handleChange = mql => {
             setMatch(mql.matches);
-            console.log(mql);
             handler && handler(mql.matches);
         }
 
