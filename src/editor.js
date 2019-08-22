@@ -1,5 +1,27 @@
 import React from 'react';
-import { Editor, EditorState, RichUtils } from 'draft-js';
+import Editor from 'draft-js-plugins-editor';
+import { EditorState, RichUtils } from 'draft-js';
+
+// import plugins
+import createToolbarPlugin from 'draft-js-static-toolbar-plugin';
+// import createMarkdownPlugin from 'draft-js-markdown-plugin';
+import { ItalicButton, BoldButton, UnderlineButton, CodeButton } from 'draft-js-buttons';
+
+// import styles
+import "draft-js-static-toolbar-plugin/lib/plugin.css";
+
+// make plugins
+const staticToolbarPlugin = createToolbarPlugin({
+    structure: [
+        BoldButton,
+        ItalicButton,
+        UnderlineButton,
+        CodeButton,
+    ]
+});
+
+const { Toolbar } = staticToolbarPlugin;
+const plugins = [staticToolbarPlugin];
 
 function ChatInput() {
     const [editorState, setEditorState] = React.useState(
@@ -28,16 +50,18 @@ function ChatInput() {
     }, []);
 
     return (
-            <div className={`chat-input editor-container ${hasFocus?'editor_focused':''}`} >
+            <div className={`editor-container ${hasFocus?'editor_focused':''}`} onClick={focusEditor}>
                 <Editor
                     ref={editor}
                     editorState={editorState}
-                    onChange={setEditorState}
+                    onChange={newState => setEditorState(newState)}
                     handleKeyCommand={handleKeyCommand}
                     onBlur={() => setFocus(false)}
                     onFocus={() => setFocus(true)}
+                    plugins={plugins}
                     placeholder='say something...'
                 />
+                <Toolbar />
             </div>
     );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 export function useMediaQuery(query, handler) {
     const [matches, setMatch] = useState(false);
 
@@ -21,3 +21,39 @@ export function useMediaQuery(query, handler) {
 
     return matches;
 }
+
+/* :: (any, ?Function) -> Array<any> */
+export function useStateWithEffect(initialState) {
+    const [state, setState] = useState(initialState);
+  
+    /** @NOTE: Handle setState callback */
+    const lookup = useRef([]);
+    useEffect(
+      () => {
+        const entry = lookup.current.find(([stateSet]) => state === stateSet);
+  
+        if (Array.isArray(entry)) {
+          const [, callback] = entry;
+          callback(state);
+        }
+  
+        lookup.current = [];
+      },
+      [state]
+    );
+    const $setState = (nextStateOrGetter, callback) => {
+      setState(nextStateOrGetter);
+  
+      if (typeof callback !== "function") {
+        return;
+      }
+  
+      const nextState =
+        typeof nextStateOrGetter === "function"
+          ? nextStateOrGetter(state)
+          : nextStateOrGetter;
+      lookup.current.push([nextState, callback]);
+    };
+  
+    return [state, $setState];
+  };

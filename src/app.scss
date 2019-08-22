@@ -78,19 +78,6 @@ body {
   box-sizing: border-box;
 }
 
-div.DraftEditor-root {
-  background-color: #fffef7;
-  // width: 100%;
-  // margin: auto;
-  box-shadow: 0px 0px 0px 0px $mdc-theme-secondary;
-  height: 3rem;
-  overflow-y: hidden;
-  font-family: $mdc-typography-font-family;
-  padding: 0.5rem;
-  font-size: 12px;
-  // border-radius: 10px;
-}
-
 .chat-messages {
   flex-grow: 1;
   overflow-x: hidden;
@@ -99,13 +86,34 @@ div.DraftEditor-root {
 }
 
 .editor-container {
-  border: 2px solid $mdc-theme-background;
+  border: 1px solid $mdc-theme-background;
   // border-radius: 10px;
   display: block;
   flex-grow: 0;
   position: relative;
+
+  box-sizing: border-box;
+  cursor: text;
+  padding: 16px;
+  border-radius: 2px;
+  // margin-bottom: 2em;
+  box-shadow: inset 0px 1px 8px -3px #ABABAB;
+  background: #fefefe;
+
+  div.DraftEditor-root {
+    background-color: #fffef7;
+    // width: 100%;
+    // margin: auto;
+    box-shadow: 0px 0px 0px 0px $mdc-theme-secondary;
+    height: 8rem;
+    overflow-y: hidden;
+    font-family: $mdc-typography-font-family;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    // border-radius: 10px;
+  }
 }
 
-.editor_focused {
-  border: 2px solid $mdc-theme-primary;
+.editor-container.editor_focused {
+  border: 1px solid $mdc-theme-primary;
 }
