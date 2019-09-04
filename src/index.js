@@ -13,8 +13,8 @@ import { List, ListItem, ListItemGraphic, ListItemPrimaryText, ListItemText } fr
 */
 
 import UsernameStore from './localStorage';
-import Welcome from './welcome';
-import ChatApp from './chat'
+import Welcome from './Welcome';
+import ChatApp from './Chat'
 
 // import io from 'socket.io-client';
 
