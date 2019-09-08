@@ -26,7 +26,7 @@ const dateFormat = {
 export default function Message(props) {
     const message = props.message;
     message.timeString = new Intl.DateTimeFormat('en-US', dateFormat).format(message.timestamp);
-    console.log(message);
+    // console.log(message);
     return (
         <div className={`message ${message.fromMe ? 'from-me' : ''}`} >
             <Caption className='username'>

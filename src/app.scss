@@ -126,7 +126,7 @@ body {
   flex-grow: 1;
   overflow-x: hidden;
   overflow-y: hidden;
-  padding: 10px 0px 0px 10px;
+  padding: 0px 0px 0px 10px;
   // padding: 20px;
   display: flex;
   flex-direction: column;
@@ -135,7 +135,7 @@ body {
 .message-body {
   max-width: 80%;
   display: inline-block;
-  padding: 20px;
+  padding: 10px;
   // background-color: $mdc-theme-surface;
   // border: 1px;
   // border-radius: 5px;
@@ -158,7 +158,8 @@ body {
 
 .message.from-me {
   justify-content: flex-end;
-  margin-bottom: .5rem;
+  margin-bottom: .25rem;
+  margin-top: .25rem;
 
   .username {
     display: none;
@@ -167,12 +168,12 @@ body {
   .message-body {
     // background-color: #af9570;
     // color: white;
-  @include mdc-card-fill-color($mdc-theme-error);
+    @include mdc-card-fill-color($mdc-theme-error);
   }
 }
 
 .message:not(.from-me) {
   justify-content: flex-start;
-  margin-bottom: 20px;
-
+  margin-top: .25rem;
+  margin-bottom: .5rem;
 }

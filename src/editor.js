@@ -1,6 +1,16 @@
 import React from 'react';
 import Editor from 'draft-js-plugins-editor';
-import { EditorState, RichUtils, convertToRaw } from 'draft-js';
+import {
+    EditorState,
+    RichUtils,
+    convertToRaw,
+    ContentState,
+    getDefaultKeyBinding,
+    KeyBindingUtil,
+    Modifier,
+    SelectionState,
+} from 'draft-js';
+
 
 import Button from '@material/react-button';
 
@@ -28,6 +38,8 @@ import UsernameStore from './localStorage';
 import "draft-js-static-toolbar-plugin/lib/plugin.css";
 import './editorStyles.css';
 
+const { hasCommandModifier } = KeyBindingUtil;
+
 // make plugins
 const staticToolbarPlugin = createToolbarPlugin();
 const { Toolbar } = staticToolbarPlugin;
@@ -41,20 +53,16 @@ export default function ChatInput(props) {
     );
     // eslint-disable-next-line
     const [hasFocus, setFocus] = React.useState(true);
+    const [canSubmit, setCanSubmit] = React.useState(false);
 
-    const handleKeyCommand = (command, editorState) => {
-        const newState = RichUtils.handleKeyCommand(editorState, command);
-        if (newState) {
-            setEditorState(newState);
-            return 'handled';
-        }
-        return 'not-handled';
-    };
-
+    
     const handleSubmit = e => {
-        e.preventDefault();
+        e && e.preventDefault();
+
+        if (!canSubmit) return;
 
         const content = editorState.getCurrentContent();
+
         const timestamp = new Date();
         const message = {
             username,
@@ -68,8 +76,34 @@ export default function ChatInput(props) {
         //on Success:
         message.fromMe = true;
         props.addMessage(message);
-        setEditorState(EditorState.createEmpty());
+        // const newState = EditorState.push(editorState, ContentState.createFromText(''), 'remove-range');
+
+
+
+        const newState = clearEditorContent(editorState);
+        // direct setEditorState doesn't work, probably because they are batched together and this one is ignored
+        setTimeout(() => setEditorState(newState));
+        setCanSubmit(false);
     }
+    
+    const handleKeyCommand = (command, editorState) => {
+        const newState = RichUtils.handleKeyCommand(editorState, command);
+        if (newState) {
+            setEditorState(newState);
+            return 'handled';
+        }
+        if (command === 'submit') {
+            handleSubmit();
+            return 'handled';
+        } 
+        return 'not-handled';
+    };
+
+    const handleChange = newState => {
+        setEditorState(newState);
+        setCanSubmit(newState.getCurrentContent().hasText());
+    }
+
 
     const editor = React.useRef(null);
 
@@ -87,7 +121,7 @@ export default function ChatInput(props) {
             <Editor
                 ref={editor}
                 editorState={editorState}
-                onChange={newState => setEditorState(newState)}
+                onChange={handleChange}
                 handleKeyCommand={handleKeyCommand}
                 onBlur={() => setFocus(false)}
                 onFocus={() => setFocus(true)}
@@ -97,6 +131,7 @@ export default function ChatInput(props) {
                     SUBSCRIPT: { fontSize: '0.6em', verticalAlign: 'sub' },
                     SUPERSCRIPT: { fontSize: '0.6em', verticalAlign: 'super' }
                 }}
+                keyBindingFn={handleSubmitKeyFn}
                 spellCheck
             />
             <Toolbar>
@@ -117,7 +152,7 @@ export default function ChatInput(props) {
                             <SubButton {...externalProps} />
                             <SupButton {...externalProps} />
                             <Separator {...externalProps} />
-                            <Button type='submit' onClick={handleSubmit} dense>submit</Button>
+                            <Button type='submit' onClick={handleSubmit} dense disabled={!canSubmit}>submit</Button>
                         </>
                     )
                 }
@@ -166,4 +201,31 @@ function HeadlinesButton(props) {
             </button>
         </div>
     );
+}
+
+// https://github.com/jpuri/draftjs-utils/blob/master/js/block.js
+function clearEditorContent(editorState) {
+    const blocks = editorState
+        .getCurrentContent()
+        .getBlockMap()
+        .toList();
+    const updatedSelection = editorState.getSelection().merge({
+        anchorKey: blocks.first().get("key"),
+        anchorOffset: 0,
+        focusKey: blocks.last().get("key"),
+        focusOffset: blocks.last().getLength()
+    });
+    const newContentState = Modifier.removeRange(
+        editorState.getCurrentContent(),
+        updatedSelection,
+        "forward"
+    );
+    return EditorState.push(editorState, newContentState, "remove-range");
+}
+
+function handleSubmitKeyFn(e) {
+    if (e.keyCode === 13 /* `enter` key */ && hasCommandModifier(e)) {
+        return 'submit';
+    }
+    return getDefaultKeyBinding(e);
 }
