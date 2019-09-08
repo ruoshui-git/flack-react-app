@@ -7,7 +7,10 @@ from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Flask(__name__, static_folder='react_app/build')
+app = Flask(__name__, static_folder='./build')
+
+socketio = SocketIO(app)
+# doc: https://flask-socketio.readthedocs.io/en/latest/
 
 # Serve React App
 @app.route('/', defaults={'path': ''})
@@ -20,4 +23,4 @@ def serve(path):
 
 
 if __name__ == '__main__':
-    app.run(use_reloader=True, port=5000, threaded=True)
+    socketio.run(app, use_reloader=True, port=5000)
